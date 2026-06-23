@@ -230,6 +230,9 @@ def buscar_dados(token, _cache_key=0):
         tarefas = graph_get_all(token, f"https://graph.microsoft.com/v1.0/planner/plans/{plano['id']}/tasks")
         for t in tarefas:
             nome = t.get("title", "")
+            # Ignora tarefas concluídas
+            if t.get("percentComplete", 0) == 100:
+                continue
             bucket = buckets.get(t.get("bucketId", ""), "—")
             todas_tarefas_debug.append({"plano": plano["title"], "bucket": bucket, "tarefa": nome, "due": t.get("dueDateTime", "")})
             if not any(f in nome.upper() for f in FILTROS):
@@ -253,7 +256,14 @@ def buscar_dados(token, _cache_key=0):
                 "tipo": tipo,
             })
 
-    return sorted(todos, key=lambda x: (x["concurso"], x["tipo"])), todas_tarefas_debug
+    def sort_key(x):
+        if x["data"] == "Sem data":
+            return "9999"
+        try:
+            return datetime.strptime(x["data"], "%d/%m/%Y").strftime("%Y%m%d")
+        except:
+            return "9999"
+    return sorted(todos, key=sort_key), todas_tarefas_debug
 
 
 # ─── ESTADO DE AUTH ───────────────────────────────────────────────────────────
