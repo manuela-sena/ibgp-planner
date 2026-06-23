@@ -188,6 +188,20 @@ def graph_get(token, url):
     return resp.json()
 
 
+def graph_get_all(token, url):
+    """Busca todos os resultados paginados da Graph API."""
+    headers = {"Authorization": f"Bearer {token}"}
+    results = []
+    next_url = url
+    while next_url:
+        resp = requests.get(next_url, headers=headers)
+        resp.raise_for_status()
+        data = resp.json()
+        results.extend(data.get("value", []))
+        next_url = data.get("@odata.nextLink")
+    return results
+
+
 @st.cache_data(ttl=300, show_spinner=False)
 def buscar_dados(token, _cache_key=0):
     # Grupos
@@ -213,8 +227,8 @@ def buscar_dados(token, _cache_key=0):
         buckets_data = graph_get(token, f"https://graph.microsoft.com/v1.0/planner/plans/{plano['id']}/buckets")
         buckets = {b["id"]: b["name"] for b in buckets_data.get("value", [])}
 
-        tarefas_data = graph_get(token, f"https://graph.microsoft.com/v1.0/planner/plans/{plano['id']}/tasks")
-        for t in tarefas_data.get("value", []):
+        tarefas = graph_get_all(token, f"https://graph.microsoft.com/v1.0/planner/plans/{plano['id']}/tasks")
+        for t in tarefas:
             nome = t.get("title", "")
             bucket = buckets.get(t.get("bucketId", ""), "—")
             todas_tarefas_debug.append({"plano": plano["title"], "bucket": bucket, "tarefa": nome, "due": t.get("dueDateTime", "")})
