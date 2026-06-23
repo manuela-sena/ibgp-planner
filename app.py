@@ -205,6 +205,7 @@ def buscar_dados(token, _cache_key=0):
             continue
 
     todos = []
+    todas_tarefas_debug = []
     for plano in planos:
         buckets_data = graph_get(token, f"https://graph.microsoft.com/v1.0/planner/plans/{plano['id']}/buckets")
         buckets = {b["id"]: b["name"] for b in buckets_data.get("value", [])}
@@ -212,6 +213,8 @@ def buscar_dados(token, _cache_key=0):
         tarefas_data = graph_get(token, f"https://graph.microsoft.com/v1.0/planner/plans/{plano['id']}/tasks")
         for t in tarefas_data.get("value", []):
             nome = t.get("title", "")
+            bucket = buckets.get(t.get("bucketId", ""), "—")
+            todas_tarefas_debug.append({"plano": plano["title"], "bucket": bucket, "tarefa": nome})
             if not any(f in nome.upper() for f in FILTROS):
                 continue
             bucket = buckets.get(t.get("bucketId", ""), "—")
@@ -233,7 +236,7 @@ def buscar_dados(token, _cache_key=0):
                 "tipo": tipo,
             })
 
-    return sorted(todos, key=lambda x: (x["concurso"], x["tipo"]))
+    return sorted(todos, key=lambda x: (x["concurso"], x["tipo"])), todas_tarefas_debug
 
 
 # ─── ESTADO DE AUTH ───────────────────────────────────────────────────────────
@@ -278,7 +281,7 @@ with col_refresh:
 
 try:
     with st.spinner("Buscando tarefas no Planner..."):
-        dados = buscar_dados(token)
+        dados, debug_tarefas = buscar_dados(token)
 except requests.HTTPError as e:
     if e.response.status_code == 401 and st.session_state.get("refresh_token"):
         new_token = renovar_token(st.session_state["refresh_token"])
@@ -294,6 +297,15 @@ except requests.HTTPError as e:
 if not dados:
     st.warning("Nenhuma tarefa de inscrição ou isenção encontrada no Planner.")
     st.stop()
+
+# ─── DEBUG ───────────────────────────────────────────────────────────────────
+with st.expander("🔍 Ver todas as tarefas encontradas (diagnóstico)"):
+    if debug_tarefas:
+        st.caption(f"Total de tarefas encontradas no Planner: {len(debug_tarefas)}")
+        for t in sorted(debug_tarefas, key=lambda x: (x["bucket"], x["tarefa"])):
+            st.text(f"[{t['bucket']}] {t['tarefa']}")
+    else:
+        st.warning("Nenhuma tarefa encontrada.")
 
 # ─── STATS ────────────────────────────────────────────────────────────────────
 
