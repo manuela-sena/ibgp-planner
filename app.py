@@ -8,6 +8,7 @@ from urllib.parse import urlencode, parse_qs, urlparse
 CLIENT_ID = "cf858739-80c5-4bf0-bc5c-6f5b0cefb70d"
 TENANT_ID = "e1362ab7-0546-4f12-9f44-0867415479b9"
 SCOPES = "Tasks.ReadWrite Group.Read.All User.Read.All offline_access"
+REDIRECT_URI = "https://ibgp-planner-qn2vrzsh36olfjspwx8lj8.streamlit.app/"
 
 FILTROS = [
     "PERÍODO DE INSCRIÇÕES",
@@ -137,21 +138,11 @@ st.markdown("""
 
 # ─── AUTH ─────────────────────────────────────────────────────────────────────
 
-def get_redirect_uri():
-    try:
-        base = st.get_option("browser.serverAddress") or "localhost"
-        port = st.get_option("browser.serverPort") or 8501
-        return f"http://{base}:{port}"
-    except:
-        return st.secrets.get("REDIRECT_URI", "http://localhost:8501")
-
-
 def auth_url():
-    redirect_uri = get_redirect_uri()
     params = {
         "client_id": CLIENT_ID,
         "response_type": "code",
-        "redirect_uri": redirect_uri,
+        "redirect_uri": REDIRECT_URI,
         "scope": SCOPES,
         "response_mode": "query",
     }
@@ -159,14 +150,13 @@ def auth_url():
 
 
 def trocar_codigo(code):
-    redirect_uri = get_redirect_uri()
     resp = requests.post(
         f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token",
         data={
             "client_id": CLIENT_ID,
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": redirect_uri,
+            "redirect_uri": REDIRECT_URI,
             "scope": SCOPES,
         }
     )
