@@ -204,6 +204,9 @@ def buscar_dados(token, _cache_key=0):
         except:
             continue
 
+    # Filtra apenas o plano PLANNER IBGP
+    planos = [p for p in planos if "PLANNER IBGP" in p["title"].upper()]
+
     todos = []
     todas_tarefas_debug = []
     for plano in planos:
@@ -214,7 +217,7 @@ def buscar_dados(token, _cache_key=0):
         for t in tarefas_data.get("value", []):
             nome = t.get("title", "")
             bucket = buckets.get(t.get("bucketId", ""), "—")
-            todas_tarefas_debug.append({"plano": plano["title"], "bucket": bucket, "tarefa": nome})
+            todas_tarefas_debug.append({"plano": plano["title"], "bucket": bucket, "tarefa": nome, "due": t.get("dueDateTime", "")})
             if not any(f in nome.upper() for f in FILTROS):
                 continue
             bucket = buckets.get(t.get("bucketId", ""), "—")
@@ -303,7 +306,7 @@ with st.expander("🔍 Ver todas as tarefas encontradas (diagnóstico)"):
     if debug_tarefas:
         st.caption(f"Total de tarefas encontradas no Planner: {len(debug_tarefas)}")
         for t in sorted(debug_tarefas, key=lambda x: (x["bucket"], x["tarefa"])):
-            st.text(f"[{t['bucket']}] {t['tarefa']}")
+            st.text(f"[{t['plano']}] [{t['bucket']}] {t['tarefa']} | due: {t['due']}")
     else:
         st.warning("Nenhuma tarefa encontrada.")
 
