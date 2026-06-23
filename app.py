@@ -9,6 +9,7 @@ CLIENT_ID = "cf858739-80c5-4bf0-bc5c-6f5b0cefb70d"
 TENANT_ID = "e1362ab7-0546-4f12-9f44-0867415479b9"
 SCOPES = "Tasks.ReadWrite Group.Read.All User.Read.All offline_access"
 REDIRECT_URI = "https://ibgp-planner-qn2vrzsh36olfjspwx8lj8.streamlit.app/"
+CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
 
 FILTROS = [
     "PERÍODO DE INSCRIÇÕES",
@@ -154,6 +155,7 @@ def trocar_codigo(code):
         f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token",
         data={
             "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
             "grant_type": "authorization_code",
             "code": code,
             "redirect_uri": REDIRECT_URI,
@@ -168,6 +170,7 @@ def renovar_token(refresh_token):
         f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token",
         data={
             "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
             "grant_type": "refresh_token",
             "refresh_token": refresh_token,
             "scope": SCOPES,
