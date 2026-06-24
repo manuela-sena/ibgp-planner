@@ -11,15 +11,15 @@ SCOPES = "Tasks.ReadWrite Group.Read.All User.Read.All offline_access"
 REDIRECT_URI = "https://ibgp-planner-qn2vrzsh36olfjspwx8lj8.streamlit.app/"
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
 
+# Filtros com correspondência exata — a tarefa deve conter exatamente um desses nomes
 CATEGORIAS = {
     "📝 Inscrições": ["PERÍODO DE INSCRIÇÕES"],
     "💰 Isenção": ["PERÍODO SOLICITAÇÃO DE ISENÇÃO"],
-    "📄 Prova Objetiva": ["REALIZAÇÃO DA PROVA OBJETIVA"],
-    "📝 Prova Discursiva": ["PROVA DISCURSA", "PROVA DISCURSIVA"],
+    "📄 Prova Objetiva / Discursiva": ["PROVA OBJETIVA E PROVA DISCURSIVA", "PROVA OBJETIVA"],
     "🏃 Prova Prática": ["REALIZAÇÃO PROVA PRÁTICA"],
     "🧠 Avaliação Psicológica": ["REALIZAÇÃO DA AVALIAÇÃO PSICOLÓGICA"],
     "💪 Capacidade Física": ["REALIZAÇÃO DA PROVA DE CAPACIDADE FÍSICA"],
-    "🏥 Av. Méd. Pericial": ["REALIZAÇÃO/AV. MÉD. PERICIAL"],
+    "🏥 Av. Méd. Pericial": ["REALIZAÇÃO/AV. MÉD. PERICIAL MULTI/BIOPSICOSSOCIAL"],
     "🩺 Avaliação Clínica": ["REALIZAÇÃO DA AVALIAÇÃO CLÍNICA"],
     "💊 Avaliação Médica": ["REALIZAÇÃO DA AVALIAÇÃO MÉDICA"],
 }
@@ -255,11 +255,14 @@ def buscar_dados(token, _cache_key=0):
                 data_fmt = dt.strftime("%d/%m/%Y")
                 dias_restantes = (dt - datetime.now()).days
 
-            categoria = "Outros"
+            categoria = None
+            nome_upper = nome.upper().strip()
             for cat_label, cat_filtros in CATEGORIAS.items():
-                if any(f in nome.upper() for f in cat_filtros):
+                if any(nome_upper == f or nome_upper.startswith(f) for f in cat_filtros):
                     categoria = cat_label
                     break
+            if not categoria:
+                continue  # ignora tarefas que não batem exatamente
             todos.append({
                 "plano": plano["title"],
                 "concurso": bucket,
