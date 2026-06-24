@@ -12,18 +12,18 @@ REDIRECT_URI = "https://ibgp-planner-qn2vrzsh36olfjspwx8lj8.streamlit.app/"
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
 
 CATEGORIAS = {
-    "📝 Inscrições": "PERÍODO DE INSCRIÇÕES",
-    "💰 Isenção": "PERÍODO SOLICITAÇÃO DE ISENÇÃO",
-    "📄 Prova Objetiva": "PROVA OBJETIVA",
-    "📝 Prova Discursiva": "PROVA DISCURSIVA",
-    "🏃 Prova Prática": "REALIZAÇÃO PROVA PRÁTICA",
-    "🧠 Avaliação Psicológica": "REALIZAÇÃO DA AVALIAÇÃO PSICOLÓGICA",
-    "💪 Capacidade Física": "REALIZAÇÃO DA PROVA DE CAPACIDADE FÍSICA",
-    "🏥 Av. Méd. Pericial": "REALIZAÇÃO/AV. MÉD. PERICIAL",
-    "🩺 Avaliação Clínica": "REALIZAÇÃO DA AVALIAÇÃO CLÍNICA",
-    "💊 Avaliação Médica": "REALIZAÇÃO DA AVALIAÇÃO MÉDICA",
+    "📝 Inscrições": ["PERÍODO DE INSCRIÇÕES"],
+    "💰 Isenção": ["PERÍODO SOLICITAÇÃO DE ISENÇÃO"],
+    "📄 Prova Objetiva": ["REALIZAÇÃO DA PROVA OBJETIVA"],
+    "📝 Prova Discursiva": ["PROVA DISCURSA", "PROVA DISCURSIVA"],
+    "🏃 Prova Prática": ["REALIZAÇÃO PROVA PRÁTICA"],
+    "🧠 Avaliação Psicológica": ["REALIZAÇÃO DA AVALIAÇÃO PSICOLÓGICA"],
+    "💪 Capacidade Física": ["REALIZAÇÃO DA PROVA DE CAPACIDADE FÍSICA"],
+    "🏥 Av. Méd. Pericial": ["REALIZAÇÃO/AV. MÉD. PERICIAL"],
+    "🩺 Avaliação Clínica": ["REALIZAÇÃO DA AVALIAÇÃO CLÍNICA"],
+    "💊 Avaliação Médica": ["REALIZAÇÃO DA AVALIAÇÃO MÉDICA"],
 }
-FILTROS = list(CATEGORIAS.values())
+FILTROS = [f for filtros in CATEGORIAS.values() for f in filtros]
 
 # ─── PÁGINA ───────────────────────────────────────────────────────────────────
 st.set_page_config(
