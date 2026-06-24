@@ -255,14 +255,18 @@ def buscar_dados(token, _cache_key=0):
                 data_fmt = dt.strftime("%d/%m/%Y")
                 dias_restantes = (dt - datetime.now()).days
 
-            tipo = "inscricao" if "INSCRIÇÕES" in nome.upper() else "isencao"
+            categoria = "Outros"
+            for cat_label, cat_filtros in CATEGORIAS.items():
+                if any(f in nome.upper() for f in cat_filtros):
+                    categoria = cat_label
+                    break
             todos.append({
                 "plano": plano["title"],
                 "concurso": bucket,
                 "tarefa": nome,
                 "data": data_fmt,
                 "dias": dias_restantes,
-                "tipo": tipo,
+                "tipo": categoria,
             })
 
     def sort_key(x):
