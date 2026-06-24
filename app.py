@@ -11,10 +11,19 @@ SCOPES = "Tasks.ReadWrite Group.Read.All User.Read.All offline_access"
 REDIRECT_URI = "https://ibgp-planner-qn2vrzsh36olfjspwx8lj8.streamlit.app/"
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
 
-FILTROS = [
-    "PERÍODO DE INSCRIÇÕES",
-    "PERÍODO SOLICITAÇÃO DE ISENÇÃO",
-]
+CATEGORIAS = {
+    "📝 Inscrições": "PERÍODO DE INSCRIÇÕES",
+    "💰 Isenção": "PERÍODO SOLICITAÇÃO DE ISENÇÃO",
+    "📄 Prova Objetiva": "PROVA OBJETIVA",
+    "📝 Prova Discursiva": "PROVA DISCURSIVA",
+    "🏃 Prova Prática": "REALIZAÇÃO PROVA PRÁTICA",
+    "🧠 Avaliação Psicológica": "REALIZAÇÃO DA AVALIAÇÃO PSICOLÓGICA",
+    "💪 Capacidade Física": "REALIZAÇÃO DA PROVA DE CAPACIDADE FÍSICA",
+    "🏥 Av. Méd. Pericial": "REALIZAÇÃO/AV. MÉD. PERICIAL",
+    "🩺 Avaliação Clínica": "REALIZAÇÃO DA AVALIAÇÃO CLÍNICA",
+    "💊 Avaliação Médica": "REALIZAÇÃO DA AVALIAÇÃO MÉDICA",
+}
+FILTROS = list(CATEGORIAS.values())
 
 # ─── PÁGINA ───────────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -325,6 +334,21 @@ if not dados:
     st.warning("Nenhuma tarefa de inscrição ou isenção encontrada no Planner.")
     st.stop()
 
+# ─── FILTROS VISUAIS ─────────────────────────────────────────────────────────
+st.markdown("### Filtrar por tipo de atividade")
+cats_disponiveis = list(CATEGORIAS.keys())
+cats_selecionadas = st.multiselect(
+    "Selecione as atividades que deseja visualizar:",
+    options=cats_disponiveis,
+    default=cats_disponiveis,
+    label_visibility="collapsed"
+)
+
+if cats_selecionadas:
+    dados = [d for d in dados if d["tipo"] in cats_selecionadas]
+
+st.divider()
+
 # ─── DEBUG ───────────────────────────────────────────────────────────────────
 with st.expander("🔍 Ver todas as tarefas encontradas (diagnóstico)"):
     if debug_tarefas:
@@ -358,7 +382,7 @@ for concurso, tarefas_iter in groupby(dados_sorted, key=lambda x: x["concurso"])
     st.markdown(f'<div class="concurso-header">🏛 {concurso}</div>', unsafe_allow_html=True)
 
     for t in tarefas:
-        badge = '<span class="badge-inscricao">INSCRIÇÃO</span>' if t["tipo"] == "inscricao" else '<span class="badge-isencao">ISENÇÃO</span>'
+        badge = f'<span class="badge-isencao">{t["tipo"]}</span>'
 
         if t["dias"] is None:
             data_class = "tarefa-data"
